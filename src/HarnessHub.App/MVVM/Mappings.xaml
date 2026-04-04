@@ -1,0 +1,12 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ViewModel → View DataTemplate 매핑
+         Phase 2 이후 각 모듈의 ViewModel-View 쌍을 여기에 등록한다.
+         예:
+         <DataTemplate DataType="{x:Type dashboardVm:DashboardViewModel}">
+             <dashboardView:DashboardView />
+         </DataTemplate>
+    -->
+
+</ResourceDictionary>

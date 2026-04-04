@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\HarnessHub.Shell\HarnessHub.Shell.csproj" />
+    <ProjectReference Include="..\HarnessHub.Dashboard\HarnessHub.Dashboard.csproj" />
+    <ProjectReference Include="..\HarnessHub.Explorer\HarnessHub.Explorer.csproj" />
+    <ProjectReference Include="..\HarnessHub.Editor\HarnessHub.Editor.csproj" />
+    <ProjectReference Include="..\HarnessHub.Preset\HarnessHub.Preset.csproj" />
+    <ProjectReference Include="..\HarnessHub.Abstract\HarnessHub.Abstract.csproj" />
+    <ProjectReference Include="..\HarnessHub.Models\HarnessHub.Models.csproj" />
+    <ProjectReference Include="..\HarnessHub.Infrastructure\HarnessHub.Infrastructure.csproj" />
+    <ProjectReference Include="..\HarnessHub.Util\HarnessHub.Util.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="*" />
+    <PackageReference Include="MaterialDesignThemes" Version="*" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="*" />
+    <PackageReference Include="Serilog" Version="*" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="*" />
+    <PackageReference Include="Serilog.Sinks.File" Version="*" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <StartupObject>HarnessHub.App.Boot.BootStrapper</StartupObject>
+  </PropertyGroup>
+
+</Project>

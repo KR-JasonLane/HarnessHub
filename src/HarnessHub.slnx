@@ -1,0 +1,13 @@
+<Solution>
+  <Project Path="HarnessHub.App/HarnessHub.App.csproj" />
+  <Project Path="HarnessHub.Shell/HarnessHub.Shell.csproj" />
+  <Project Path="HarnessHub.Dashboard/HarnessHub.Dashboard.csproj" />
+  <Project Path="HarnessHub.Explorer/HarnessHub.Explorer.csproj" />
+  <Project Path="HarnessHub.Editor/HarnessHub.Editor.csproj" />
+  <Project Path="HarnessHub.Preset/HarnessHub.Preset.csproj" />
+  <Project Path="HarnessHub.Abstract/HarnessHub.Abstract.csproj" />
+  <Project Path="HarnessHub.Models/HarnessHub.Models.csproj" />
+  <Project Path="HarnessHub.Infrastructure/HarnessHub.Infrastructure.csproj" />
+  <Project Path="HarnessHub.Util/HarnessHub.Util.csproj" />
+  <Project Path="HarnessHub.Tests/HarnessHub.Tests.csproj" />
+</Solution>

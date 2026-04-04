@@ -1,0 +1,21 @@
+<Application x:Class="HarnessHub.App.Boot.HarnessHubApp"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             ShutdownMode="OnMainWindowClose">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- MaterialDesign MD3 -->
+                <materialDesign:BundledTheme
+                    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                    BaseTheme="Light"
+                    PrimaryColor="DeepPurple"
+                    SecondaryColor="Lime" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml" />
+
+                <!-- ViewModel → View DataTemplate 매핑 -->
+                <ResourceDictionary Source="MVVM/Mappings.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
