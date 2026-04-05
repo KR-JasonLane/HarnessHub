@@ -12,6 +12,7 @@ namespace HarnessHub.Shell.ViewModels;
 public partial class ShellWindowViewModel : ObservableRecipient
 {
     private readonly IThemeService _themeService;
+    private readonly INavigationService _navigationService;
 
     [ObservableProperty]
     private IContentViewModel? _currentContent;
@@ -22,10 +23,13 @@ public partial class ShellWindowViewModel : ObservableRecipient
     [ObservableProperty]
     private bool _isDarkTheme;
 
-    public ShellWindowViewModel(IThemeService themeService)
+    public ShellWindowViewModel(IThemeService themeService, INavigationService navigationService)
     {
         _themeService = themeService;
+        _navigationService = navigationService;
         _isDarkTheme = _themeService.IsDarkTheme;
+
+        NavigateTo(0);
     }
 
     partial void OnSelectedNavigationIndexChanged(int value)
@@ -52,7 +56,6 @@ public partial class ShellWindowViewModel : ObservableRecipient
     /// </summary>
     private void NavigateTo(int index)
     {
-        // Phase 2 이후 각 모듈의 ViewModel을 DI에서 가져와 할당
-        // 0: Dashboard, 1: Explorer, 2: Editor, 3: Preset
+        CurrentContent = _navigationService.ResolveContent(index);
     }
 }

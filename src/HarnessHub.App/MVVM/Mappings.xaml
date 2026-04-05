@@ -1,12 +1,11 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:dashboardVm="clr-namespace:HarnessHub.Dashboard.ViewModels;assembly=HarnessHub.Dashboard"
+                    xmlns:dashboardView="clr-namespace:HarnessHub.Dashboard.Views;assembly=HarnessHub.Dashboard">
 
-    <!-- ViewModel → View DataTemplate 매핑
-         Phase 2 이후 각 모듈의 ViewModel-View 쌍을 여기에 등록한다.
-         예:
-         <DataTemplate DataType="{x:Type dashboardVm:DashboardViewModel}">
-             <dashboardView:DashboardView />
-         </DataTemplate>
-    -->
+    <!-- Dashboard: ViewModel → View -->
+    <DataTemplate DataType="{x:Type dashboardVm:DashboardViewModel}">
+        <dashboardView:DashboardView />
+    </DataTemplate>
 
 </ResourceDictionary>

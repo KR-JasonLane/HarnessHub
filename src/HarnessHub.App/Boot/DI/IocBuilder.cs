@@ -1,6 +1,9 @@
 using CommunityToolkit.Mvvm.DependencyInjection;
 using HarnessHub.Abstract.Services;
 using HarnessHub.App.Services;
+using HarnessHub.Dashboard.ViewModels;
+using HarnessHub.Infrastructure.Harness;
+using HarnessHub.Infrastructure.Token;
 using HarnessHub.Shell.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -25,10 +28,14 @@ public static class IocBuilder
     private static void ConfigureServices(IServiceCollection services)
     {
         services.AddSingleton<IThemeService, ThemeService>();
+        services.AddSingleton<INavigationService, NavigationService>();
+        services.AddSingleton<ITokenCounterService, SimpleTokenCounter>();
+        services.AddSingleton<IHarnessScanner, HarnessScanner>();
     }
 
     private static void ConfigureViewModels(IServiceCollection services)
     {
         services.AddTransient<ShellWindowViewModel>();
+        services.AddTransient<DashboardViewModel>();
     }
 }
