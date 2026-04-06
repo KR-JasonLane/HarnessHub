@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using HarnessHub.Abstract.Services;
 using HarnessHub.Abstract.ViewModels;
 using HarnessHub.Dashboard.ViewModels;
+using HarnessHub.Explorer.ViewModels;
 
 namespace HarnessHub.App.Services;
 
@@ -15,7 +16,7 @@ public sealed class NavigationService : INavigationService
         return index switch
         {
             0 => Ioc.Default.GetService<DashboardViewModel>(),
-            // 1: Explorer (Phase 3)
+            1 => Ioc.Default.GetService<ExplorerViewModel>(),
             // 2: Editor (Phase 4)
             // 3: Preset (Phase 5)
             _ => null

@@ -1,11 +1,18 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:dashboardVm="clr-namespace:HarnessHub.Dashboard.ViewModels;assembly=HarnessHub.Dashboard"
-                    xmlns:dashboardView="clr-namespace:HarnessHub.Dashboard.Views;assembly=HarnessHub.Dashboard">
+                    xmlns:dashboardView="clr-namespace:HarnessHub.Dashboard.Views;assembly=HarnessHub.Dashboard"
+                    xmlns:explorerVm="clr-namespace:HarnessHub.Explorer.ViewModels;assembly=HarnessHub.Explorer"
+                    xmlns:explorerView="clr-namespace:HarnessHub.Explorer.Views;assembly=HarnessHub.Explorer">
 
     <!-- Dashboard: ViewModel → View -->
     <DataTemplate DataType="{x:Type dashboardVm:DashboardViewModel}">
         <dashboardView:DashboardView />
+    </DataTemplate>
+
+    <!-- Explorer: ViewModel → View -->
+    <DataTemplate DataType="{x:Type explorerVm:ExplorerViewModel}">
+        <explorerView:ExplorerView />
     </DataTemplate>
 
 </ResourceDictionary>

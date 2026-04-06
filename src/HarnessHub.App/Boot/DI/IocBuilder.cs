@@ -2,6 +2,8 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using HarnessHub.Abstract.Services;
 using HarnessHub.App.Services;
 using HarnessHub.Dashboard.ViewModels;
+using HarnessHub.Explorer.ViewModels;
+using HarnessHub.Infrastructure.FileSystem;
 using HarnessHub.Infrastructure.Harness;
 using HarnessHub.Infrastructure.Token;
 using HarnessHub.Shell.ViewModels;
@@ -31,11 +33,13 @@ public static class IocBuilder
         services.AddSingleton<INavigationService, NavigationService>();
         services.AddSingleton<ITokenCounterService, SimpleTokenCounter>();
         services.AddSingleton<IHarnessScanner, HarnessScanner>();
+        services.AddSingleton<IFileExplorerService, FileExplorerService>();
     }
 
     private static void ConfigureViewModels(IServiceCollection services)
     {
         services.AddTransient<ShellWindowViewModel>();
         services.AddTransient<DashboardViewModel>();
+        services.AddTransient<ExplorerViewModel>();
     }
 }

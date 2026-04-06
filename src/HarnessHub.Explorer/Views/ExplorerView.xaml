@@ -1,0 +1,199 @@
+<UserControl x:Class="HarnessHub.Explorer.Views.ExplorerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:models="clr-namespace:HarnessHub.Models.Explorer;assembly=HarnessHub.Models"
+             xmlns:behaviors="clr-namespace:HarnessHub.Util.Behaviors;assembly=HarnessHub.Util"
+             mc:Ignorable="d"
+             d:DesignHeight="700" d:DesignWidth="900">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </UserControl.Resources>
+
+    <Grid>
+        <!-- 로딩 인디케이터 -->
+        <ProgressBar Style="{StaticResource MaterialDesignLinearProgressBar}"
+                     IsIndeterminate="True"
+                     VerticalAlignment="Top"
+                     Panel.ZIndex="1"
+                     Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+        <DockPanel Margin="8">
+            <!-- 상단: 경로 + 버튼 -->
+            <materialDesign:Card DockPanel.Dock="Top" Padding="12" Margin="0 0 0 8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <materialDesign:PackIcon Grid.Column="0"
+                                             Kind="FolderSearch"
+                                             Width="24" Height="24"
+                                             VerticalAlignment="Center"
+                                             Margin="0 0 12 0"
+                                             Foreground="{DynamicResource MaterialDesign.Brush.Primary}" />
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding ProjectPath, TargetNullValue='프로젝트 폴더를 선택하세요'}"
+                                   Style="{StaticResource MaterialDesignBody1TextBlock}"
+                                   TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{Binding GlobalPath, StringFormat='글로벌: {0}'}"
+                                   Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                   Opacity="0.6"
+                                   Margin="0 2 0 0" />
+                    </StackPanel>
+
+                    <Button Grid.Column="2"
+                            Style="{StaticResource MaterialDesignFlatButton}"
+                            Command="{Binding OpenFolderCommand}"
+                            Content="폴더 열기"
+                            Margin="8 0" />
+
+                    <Button Grid.Column="3"
+                            Style="{StaticResource MaterialDesignIconButton}"
+                            Command="{Binding RefreshCommand}"
+                            ToolTip="새로고침">
+                        <materialDesign:PackIcon Kind="Refresh" />
+                    </Button>
+                </Grid>
+            </materialDesign:Card>
+
+            <!-- 본문: 트리뷰 + 파일 목록 -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" MinWidth="200" />
+                    <ColumnDefinition Width="5" />
+                    <ColumnDefinition Width="3*" MinWidth="300" />
+                </Grid.ColumnDefinitions>
+
+                <!-- 좌측: 폴더 트리 -->
+                <materialDesign:Card Grid.Column="0" Padding="0">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top"
+                                   Text="폴더 구조"
+                                   Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
+                                   Margin="12 8" />
+                        <TreeView ItemsSource="{Binding RootNodes}"
+                                  behaviors:TreeViewSelectedItemBehavior.IsEnabled="True"
+                                  behaviors:TreeViewSelectedItemBehavior.SelectedItem="{Binding SelectedNode}"
+                                  BorderThickness="0">
+                            <TreeView.ItemContainerStyle>
+                                <Style TargetType="TreeViewItem" BasedOn="{StaticResource MaterialDesignTreeViewItem}">
+                                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=OneTime}" />
+                                </Style>
+                            </TreeView.ItemContainerStyle>
+                            <TreeView.ItemTemplate>
+                                <HierarchicalDataTemplate DataType="{x:Type models:FolderNode}"
+                                                          ItemsSource="{Binding Children}">
+                                    <StackPanel Orientation="Horizontal" Margin="2">
+                                        <!-- 아이콘 -->
+                                        <materialDesign:PackIcon Width="18" Height="18"
+                                                                 VerticalAlignment="Center"
+                                                                 Margin="0 0 6 0">
+                                            <materialDesign:PackIcon.Style>
+                                                <Style TargetType="materialDesign:PackIcon">
+                                                    <Setter Property="Kind" Value="File" />
+                                                    <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Foreground.Light}" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsDirectory}" Value="True">
+                                                            <Setter Property="Kind" Value="Folder" />
+                                                            <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Secondary}" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsHarnessFile}" Value="True">
+                                                            <Setter Property="Kind" Value="FileCheck" />
+                                                            <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Primary}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </materialDesign:PackIcon.Style>
+                                        </materialDesign:PackIcon>
+
+                                        <!-- 파일명 -->
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignBody2TextBlock}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsHarnessFile}" Value="True">
+                                                            <Setter Property="FontWeight" Value="SemiBold" />
+                                                            <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Primary}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </HierarchicalDataTemplate>
+                            </TreeView.ItemTemplate>
+                        </TreeView>
+                    </DockPanel>
+                </materialDesign:Card>
+
+                <!-- GridSplitter -->
+                <GridSplitter Grid.Column="1"
+                              HorizontalAlignment="Stretch"
+                              VerticalAlignment="Stretch"
+                              Background="Transparent" />
+
+                <!-- 우측: 하네스 파일 목록 -->
+                <materialDesign:Card Grid.Column="2" Padding="0">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top"
+                                   Text="하네스 파일 목록"
+                                   Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
+                                   Margin="12 8" />
+
+                        <DataGrid ItemsSource="{Binding HarnessFiles}"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  CanUserAddRows="False"
+                                  CanUserDeleteRows="False"
+                                  HeadersVisibility="Column"
+                                  GridLinesVisibility="Horizontal"
+                                  materialDesign:DataGridAssist.ColumnHeaderPadding="12 8"
+                                  materialDesign:DataGridAssist.CellPadding="12 8">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="파일명"
+                                                    Binding="{Binding FileName}"
+                                                    Width="150" />
+                                <DataGridTextColumn Header="경로"
+                                                    Binding="{Binding FilePath}"
+                                                    Width="*">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                                            <Setter Property="Opacity" Value="0.7" />
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="유형"
+                                                    Binding="{Binding FileType}"
+                                                    Width="130" />
+                                <DataGridTextColumn Header="레버"
+                                                    Binding="{Binding Lever}"
+                                                    Width="110" />
+                                <DataGridTextColumn Header="토큰"
+                                                    Binding="{Binding TokenCount, StringFormat='{}{0:N0}'}"
+                                                    Width="70">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" Value="Right" />
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="수정일"
+                                                    Binding="{Binding LastModified, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}"
+                                                    Width="130" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </DockPanel>
+                </materialDesign:Card>
+            </Grid>
+        </DockPanel>
+    </Grid>
+</UserControl>
