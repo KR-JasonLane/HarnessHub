@@ -9,6 +9,13 @@
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="*" />
     <PackageReference Include="MaterialDesignThemes" Version="*" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="WebView\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <PropertyGroup>

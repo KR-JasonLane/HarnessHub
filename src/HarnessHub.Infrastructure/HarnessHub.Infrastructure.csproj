@@ -6,6 +6,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="*" />
     <PackageReference Include="Serilog" Version="*" />
     <PackageReference Include="SharpToken" Version="*" />
   </ItemGroup>

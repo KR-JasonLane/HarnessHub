@@ -2,9 +2,11 @@ using System.Collections.ObjectModel;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using HarnessHub.Abstract.Services;
 using HarnessHub.Abstract.ViewModels;
 using HarnessHub.Models.Harness;
+using HarnessHub.Models.Messages;
 
 namespace HarnessHub.Dashboard.ViewModels;
 
@@ -15,6 +17,7 @@ public partial class DashboardViewModel : ObservableRecipient, IContentViewModel
 {
     private readonly IHarnessScanner _scanner;
     private readonly ITokenCounterService _tokenCounter;
+    private readonly IProjectContext _projectContext;
 
     [ObservableProperty]
     private string _globalPath;
@@ -37,15 +40,30 @@ public partial class DashboardViewModel : ObservableRecipient, IContentViewModel
     public ObservableCollection<LeverStatus> LeverStatuses { get; } = new();
     public ObservableCollection<HarnessFileInfo> HarnessFiles { get; } = new();
 
-    public DashboardViewModel(IHarnessScanner scanner, ITokenCounterService tokenCounter)
+    public DashboardViewModel(
+        IHarnessScanner scanner,
+        ITokenCounterService tokenCounter,
+        IProjectContext projectContext)
     {
         _scanner = scanner;
         _tokenCounter = tokenCounter;
-        _globalPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-            ".claude");
+        _projectContext = projectContext;
+        _globalPath = _projectContext.GlobalPath;
+        _projectPath = _projectContext.ProjectPath;
+
+        IsActive = true;
 
         _ = LoadAsync();
+    }
+
+    /// <inheritdoc />
+    protected override void OnActivated()
+    {
+        Messenger.Register<ProjectPathChangedMessage>(this, (r, m) =>
+        {
+            ProjectPath = m.ProjectPath;
+            _ = LoadAsync();
+        });
     }
 
     [RelayCommand]
@@ -58,8 +76,7 @@ public partial class DashboardViewModel : ObservableRecipient, IContentViewModel
 
         if (dialog.ShowDialog() == true)
         {
-            ProjectPath = dialog.FolderName;
-            await LoadAsync();
+            _projectContext.SetProjectPath(dialog.FolderName);
         }
     }
 
@@ -120,6 +137,18 @@ public partial class DashboardViewModel : ObservableRecipient, IContentViewModel
                 Description = GetLeverDescription(lever)
             });
         }
+    }
+
+    /// <summary>
+    /// 하네스 파일을 에디터에서 연다.
+    /// </summary>
+    [RelayCommand]
+    private void OpenFile(HarnessFileInfo? file)
+    {
+        if (file is null)
+            return;
+
+        WeakReferenceMessenger.Default.Send(new OpenFileMessage(file.FilePath));
     }
 
     private static string GetLeverDescription(HarnessLever lever) => lever switch

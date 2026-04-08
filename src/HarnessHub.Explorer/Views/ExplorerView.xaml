@@ -82,6 +82,7 @@
                         <TreeView ItemsSource="{Binding RootNodes}"
                                   behaviors:TreeViewSelectedItemBehavior.IsEnabled="True"
                                   behaviors:TreeViewSelectedItemBehavior.SelectedItem="{Binding SelectedNode}"
+                                  behaviors:TreeViewDoubleClickBehavior.Command="{Binding OpenFileCommand}"
                                   BorderThickness="0">
                             <TreeView.ItemContainerStyle>
                                 <Style TargetType="TreeViewItem" BasedOn="{StaticResource MaterialDesignTreeViewItem}">
@@ -156,7 +157,8 @@
                                   HeadersVisibility="Column"
                                   GridLinesVisibility="Horizontal"
                                   materialDesign:DataGridAssist.ColumnHeaderPadding="12 8"
-                                  materialDesign:DataGridAssist.CellPadding="12 8">
+                                  materialDesign:DataGridAssist.CellPadding="12 8"
+                                  behaviors:DataGridDoubleClickBehavior.Command="{Binding OpenFileCommand}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="파일명"
                                                     Binding="{Binding FileName}"

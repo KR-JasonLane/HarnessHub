@@ -25,8 +25,6 @@ public sealed class HarnessScanner : IHarnessScanner
         [".claude/settings.local.json"] = (HarnessFileType.ClaudeSettingsLocal, HarnessLever.Hook),
         [".mcp.json"] = (HarnessFileType.McpConfig, HarnessLever.McpServer),
         ["AGENTS.md"] = (HarnessFileType.AgentsMd, HarnessLever.SubAgent),
-        [".cursorrules"] = (HarnessFileType.CursorRulesLegacy, HarnessLever.SystemPrompt),
-        [".github/copilot-instructions.md"] = (HarnessFileType.CopilotInstructions, HarnessLever.SystemPrompt),
         [".env"] = (HarnessFileType.EnvConfig, HarnessLever.SystemPrompt),
     };
 
@@ -81,8 +79,6 @@ public sealed class HarnessScanner : IHarnessScanner
         {
             ScanDirectory(folderPath, Path.Combine(".claude", "rules"), "*.md", HarnessFileType.ClaudeRules, HarnessLever.SystemPrompt, scope, results);
             ScanDirectory(folderPath, Path.Combine(".claude", "agents"), "*.md", HarnessFileType.AgentDefinition, HarnessLever.SubAgent, scope, results);
-            ScanDirectory(folderPath, Path.Combine(".cursor", "rules"), "*.mdc", HarnessFileType.CursorRules, HarnessLever.SystemPrompt, scope, results);
-            ScanDirectory(folderPath, Path.Combine(".windsurf", "rules"), "*.md", HarnessFileType.WindsurfRules, HarnessLever.SystemPrompt, scope, results);
         }
     }
 
@@ -126,6 +122,90 @@ public sealed class HarnessScanner : IHarnessScanner
             LastModified = fileInfo.LastWriteTime
         };
     }
+
+    public IReadOnlyList<CreatableHarnessFile> GetCreatableFiles(
+        string folderPath,
+        HarnessScope scope,
+        IReadOnlyList<HarnessFileInfo> existingFiles)
+    {
+        var results = new List<CreatableHarnessFile>();
+        var existingPaths = new HashSet<string>(
+            existingFiles
+                .Where(f => f.Scope == scope)
+                .Select(f => f.FilePath),
+            StringComparer.OrdinalIgnoreCase);
+
+        // 고정 패턴에서 미생성 파일 추출
+        var patterns = scope == HarnessScope.Global ? GlobalPatterns : ProjectPatterns;
+        foreach (var (relativePath, meta) in patterns)
+        {
+            var fullPath = Path.Combine(folderPath, relativePath);
+            if (!existingPaths.Contains(fullPath))
+            {
+                results.Add(new CreatableHarnessFile
+                {
+                    RelativePath = relativePath,
+                    FileType = meta.Type,
+                    Lever = meta.Lever,
+                    Scope = scope,
+                    Description = GetFileDescription(meta.Type)
+                });
+            }
+        }
+
+        // 와일드카드 디렉토리 (항상 추가 가능)
+        if (scope == HarnessScope.Global)
+        {
+            results.Add(CreateDirectoryEntry("rules/", "*.md", ".md",
+                HarnessFileType.ClaudeRules, HarnessLever.SystemPrompt, scope));
+            results.Add(CreateDirectoryEntry("agents/", "*.md", ".md",
+                HarnessFileType.AgentDefinition, HarnessLever.SubAgent, scope));
+        }
+        else
+        {
+            results.Add(CreateDirectoryEntry(".claude/rules/", "*.md", ".md",
+                HarnessFileType.ClaudeRules, HarnessLever.SystemPrompt, scope));
+            results.Add(CreateDirectoryEntry(".claude/agents/", "*.md", ".md",
+                HarnessFileType.AgentDefinition, HarnessLever.SubAgent, scope));
+        }
+
+        return results;
+    }
+
+    private static CreatableHarnessFile CreateDirectoryEntry(
+        string relativePath,
+        string searchPattern,
+        string extension,
+        HarnessFileType fileType,
+        HarnessLever lever,
+        HarnessScope scope)
+    {
+        return new CreatableHarnessFile
+        {
+            RelativePath = relativePath,
+            FileType = fileType,
+            Lever = lever,
+            Scope = scope,
+            Description = GetFileDescription(fileType) + " 추가",
+            IsDirectory = true,
+            FileExtension = extension
+        };
+    }
+
+    private static string GetFileDescription(HarnessFileType fileType) => fileType switch
+    {
+        HarnessFileType.ClaudeMd => "Claude 시스템 프롬프트",
+        HarnessFileType.ClaudeLocalMd => "Claude 로컬 프롬프트",
+        HarnessFileType.ClaudeSettings => "Claude 설정",
+        HarnessFileType.ClaudeSettingsLocal => "Claude 로컬 설정",
+        HarnessFileType.ClaudeRules => "Claude 규칙",
+        HarnessFileType.AgentDefinition => "에이전트 정의",
+        HarnessFileType.McpConfig => "MCP 서버 설정",
+        HarnessFileType.AgentsMd => "에이전트 정의 (AGENTS.md)",
+        HarnessFileType.Memory => "메모리",
+        HarnessFileType.EnvConfig => "환경 변수",
+        _ => fileType.ToString()
+    };
 
     private static string? ReadFileSafe(string path)
     {

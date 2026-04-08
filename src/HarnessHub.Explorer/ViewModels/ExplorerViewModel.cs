@@ -2,10 +2,12 @@ using System.Collections.ObjectModel;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using HarnessHub.Abstract.Services;
 using HarnessHub.Abstract.ViewModels;
 using HarnessHub.Models.Explorer;
 using HarnessHub.Models.Harness;
+using HarnessHub.Models.Messages;
 
 namespace HarnessHub.Explorer.ViewModels;
 
@@ -17,6 +19,7 @@ public partial class ExplorerViewModel : ObservableRecipient, IContentViewModel
 {
     private readonly IHarnessScanner _scanner;
     private readonly IFileExplorerService _fileExplorerService;
+    private readonly IProjectContext _projectContext;
 
     [ObservableProperty]
     private string _globalPath;
@@ -33,15 +36,30 @@ public partial class ExplorerViewModel : ObservableRecipient, IContentViewModel
     public ObservableCollection<FolderNode> RootNodes { get; } = new();
     public ObservableCollection<HarnessFileInfo> HarnessFiles { get; } = new();
 
-    public ExplorerViewModel(IHarnessScanner scanner, IFileExplorerService fileExplorerService)
+    public ExplorerViewModel(
+        IHarnessScanner scanner,
+        IFileExplorerService fileExplorerService,
+        IProjectContext projectContext)
     {
         _scanner = scanner;
         _fileExplorerService = fileExplorerService;
-        _globalPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-            ".claude");
+        _projectContext = projectContext;
+        _globalPath = _projectContext.GlobalPath;
+        _projectPath = _projectContext.ProjectPath;
+
+        IsActive = true;
 
         _ = LoadAsync();
+    }
+
+    /// <inheritdoc />
+    protected override void OnActivated()
+    {
+        Messenger.Register<ProjectPathChangedMessage>(this, (r, m) =>
+        {
+            ProjectPath = m.ProjectPath;
+            _ = LoadAsync();
+        });
     }
 
     [RelayCommand]
@@ -54,8 +72,7 @@ public partial class ExplorerViewModel : ObservableRecipient, IContentViewModel
 
         if (dialog.ShowDialog() == true)
         {
-            ProjectPath = dialog.FolderName;
-            await LoadAsync();
+            _projectContext.SetProjectPath(dialog.FolderName);
         }
     }
 
@@ -63,6 +80,25 @@ public partial class ExplorerViewModel : ObservableRecipient, IContentViewModel
     private async Task RefreshAsync()
     {
         await LoadAsync();
+    }
+
+    /// <summary>
+    /// 하네스 파일을 에디터에서 연다. DataGrid 행 또는 트리뷰 파일 더블클릭 시 호출.
+    /// </summary>
+    [RelayCommand]
+    private void OpenFile(object? parameter)
+    {
+        string? filePath = parameter switch
+        {
+            HarnessFileInfo file => file.FilePath,
+            FolderNode { IsDirectory: false, IsHarnessFile: true } node => node.FullPath,
+            _ => null
+        };
+
+        if (filePath is not null)
+        {
+            WeakReferenceMessenger.Default.Send(new OpenFileMessage(filePath));
+        }
     }
 
     private async Task LoadAsync()

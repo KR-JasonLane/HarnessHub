@@ -1,0 +1,23 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+#editor {
+    width: 100%;
+    height: 100%;
+}
+
+/* 다크 모드 보정 */
+body.dark-mode {
+    background: #1e1e1e;
+    color: #e0e0e0;
+}

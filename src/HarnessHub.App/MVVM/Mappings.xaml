@@ -3,7 +3,9 @@
                     xmlns:dashboardVm="clr-namespace:HarnessHub.Dashboard.ViewModels;assembly=HarnessHub.Dashboard"
                     xmlns:dashboardView="clr-namespace:HarnessHub.Dashboard.Views;assembly=HarnessHub.Dashboard"
                     xmlns:explorerVm="clr-namespace:HarnessHub.Explorer.ViewModels;assembly=HarnessHub.Explorer"
-                    xmlns:explorerView="clr-namespace:HarnessHub.Explorer.Views;assembly=HarnessHub.Explorer">
+                    xmlns:explorerView="clr-namespace:HarnessHub.Explorer.Views;assembly=HarnessHub.Explorer"
+                    xmlns:editorVm="clr-namespace:HarnessHub.Editor.ViewModels;assembly=HarnessHub.Editor"
+                    xmlns:editorView="clr-namespace:HarnessHub.Editor.Views;assembly=HarnessHub.Editor">
 
     <!-- Dashboard: ViewModel → View -->
     <DataTemplate DataType="{x:Type dashboardVm:DashboardViewModel}">
@@ -13,6 +15,11 @@
     <!-- Explorer: ViewModel → View -->
     <DataTemplate DataType="{x:Type explorerVm:ExplorerViewModel}">
         <explorerView:ExplorerView />
+    </DataTemplate>
+
+    <!-- Editor: ViewModel → View -->
+    <DataTemplate DataType="{x:Type editorVm:MarkdownEditorViewModel}">
+        <editorView:MarkdownEditorView />
     </DataTemplate>
 
 </ResourceDictionary>

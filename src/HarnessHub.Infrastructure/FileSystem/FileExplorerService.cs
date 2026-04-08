@@ -19,7 +19,7 @@ public sealed class FileExplorerService : IFileExplorerService
 
     private static readonly HashSet<string> HarnessDirectories = new(StringComparer.OrdinalIgnoreCase)
     {
-        ".claude", ".cursor", ".windsurf", ".github", "hooks", "skills"
+        ".claude", "hooks", "skills"
     };
 
     public Task<FolderNode> BuildFolderTreeAsync(string rootPath, IReadOnlyList<HarnessFileInfo> harnessFiles)
@@ -110,12 +110,8 @@ public sealed class FileExplorerService : IFileExplorerService
             "settings.json" => Models.Harness.HarnessFileType.ClaudeSettings,
             "settings.local.json" => Models.Harness.HarnessFileType.ClaudeSettingsLocal,
             ".mcp.json" => Models.Harness.HarnessFileType.McpConfig,
-            ".cursorrules" => Models.Harness.HarnessFileType.CursorRulesLegacy,
             ".env" => Models.Harness.HarnessFileType.EnvConfig,
-            "copilot-instructions.md" => Models.Harness.HarnessFileType.CopilotInstructions,
             "memory.md" => Models.Harness.HarnessFileType.Memory,
-            _ when fileName.EndsWith(".mdc", StringComparison.OrdinalIgnoreCase)
-                => Models.Harness.HarnessFileType.CursorRules,
             _ => null
         };
     }

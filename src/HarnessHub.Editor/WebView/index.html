@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/theme/toastui-editor-dark.min.css" />
+    <link rel="stylesheet" href="editor.css" />
+</head>
+<body>
+    <div id="editor"></div>
+
+    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+    <script>
+        let editor = null;
+        let isModified = false;
+
+        function initEditor(theme) {
+            editor = new toastui.Editor({
+                el: document.querySelector('#editor'),
+                height: '100%',
+                initialEditType: 'wysiwyg',
+                previewStyle: 'vertical',
+                theme: theme === 'dark' ? 'dark' : 'default',
+                usageStatistics: false,
+                events: {
+                    change: function () {
+                        isModified = true;
+                        const md = editor.getMarkdown();
+                        const lineCount = md.split('\n').length;
+                        window.chrome.webview.postMessage({
+                            action: 'contentChanged',
+                            lineCount: lineCount
+                        });
+                    }
+                }
+            });
+        }
+
+        function loadContent(markdown) {
+            if (editor) {
+                editor.setMarkdown(markdown, false);
+                isModified = false;
+            }
+        }
+
+        function getContent() {
+            if (editor) {
+                const md = editor.getMarkdown();
+                window.chrome.webview.postMessage({
+                    action: 'returnContent',
+                    content: md
+                });
+            }
+        }
+
+        function setTheme(theme) {
+            document.body.className = theme === 'dark' ? 'dark-mode' : '';
+            // Toast UI Editor는 런타임 테마 변경을 지원하지 않으므로 재초기화
+            if (editor) {
+                const content = editor.getMarkdown();
+                editor.destroy();
+                initEditor(theme);
+                editor.setMarkdown(content, false);
+            }
+        }
+
+        // C#에서 보내는 메시지 수신
+        window.chrome.webview.addEventListener('message', function (event) {
+            const msg = event.data;
+            if (msg.action === 'load') {
+                loadContent(msg.content);
+            } else if (msg.action === 'save') {
+                getContent();
+            } else if (msg.action === 'setTheme') {
+                setTheme(msg.theme);
+            }
+        });
+
+        // 초기화 (기본 라이트 테마)
+        initEditor('default');
+        window.chrome.webview.postMessage({ action: 'ready' });
+    </script>
+</body>
+</html>
