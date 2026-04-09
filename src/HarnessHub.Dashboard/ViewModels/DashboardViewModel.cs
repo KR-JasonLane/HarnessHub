@@ -64,6 +64,11 @@ public partial class DashboardViewModel : ObservableRecipient, IContentViewModel
             ProjectPath = m.ProjectPath;
             _ = LoadAsync();
         });
+
+        Messenger.Register<PresetAppliedMessage>(this, (r, m) =>
+        {
+            _ = LoadAsync();
+        });
     }
 
     [RelayCommand]

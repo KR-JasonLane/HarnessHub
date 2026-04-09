@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="*" />
     <PackageReference Include="MaterialDesignThemes" Version="*" />
+    <PackageReference Include="Serilog" Version="*" />
   </ItemGroup>
 
   <PropertyGroup>

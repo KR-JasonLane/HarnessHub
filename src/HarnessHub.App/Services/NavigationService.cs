@@ -5,6 +5,7 @@ using HarnessHub.Abstract.ViewModels;
 using HarnessHub.Dashboard.ViewModels;
 using HarnessHub.Editor.ViewModels;
 using HarnessHub.Explorer.ViewModels;
+using HarnessHub.Preset.ViewModels;
 
 namespace HarnessHub.App.Services;
 
@@ -36,11 +37,11 @@ public sealed class NavigationService : INavigationService
             0 => Ioc.Default.GetService<DashboardViewModel>(),
             1 => Ioc.Default.GetService<ExplorerViewModel>(),
             2 => Ioc.Default.GetService<MarkdownEditorViewModel>(),
-            // 3: Preset (Phase 5)
+            3 => Ioc.Default.GetService<PresetViewModel>(),
             _ => null
         };
 
-        if (viewModel is null && index <= 2)
+        if (viewModel is null && index <= 3)
             throw new InvalidOperationException($"DI에 인덱스 {index}에 해당하는 ViewModel이 등록되지 않았습니다.");
 
         return viewModel;
