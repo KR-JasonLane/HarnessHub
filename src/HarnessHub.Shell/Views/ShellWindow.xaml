@@ -73,6 +73,10 @@
             <ListBoxItem Content="프리셋"
                          materialDesign:NavigationRailAssist.SelectedIcon="Tune"
                          materialDesign:NavigationRailAssist.UnselectedIcon="TuneVariant" />
+
+            <ListBoxItem Content="설정"
+                         materialDesign:NavigationRailAssist.SelectedIcon="Cog"
+                         materialDesign:NavigationRailAssist.UnselectedIcon="CogOutline" />
         </ListBox>
         </Border>
 

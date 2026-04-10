@@ -1,0 +1,147 @@
+<UserControl x:Class="HarnessHub.Setting.Views.SettingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:converters="clr-namespace:HarnessHub.Util.Converters;assembly=HarnessHub.Util"
+             mc:Ignorable="d"
+             d:DesignHeight="700" d:DesignWidth="900">
+
+    <UserControl.Resources>
+        <converters:EnumToBoolConverter x:Key="EnumToBoolConverter" />
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="8">
+        <StackPanel Margin="8" MaxWidth="640">
+
+            <!-- 헤더 -->
+            <DockPanel Margin="0 0 0 24">
+                <materialDesign:PackIcon Kind="Cog" Width="28" Height="28"
+                                         VerticalAlignment="Center"
+                                         Margin="0 0 12 0"
+                                         Foreground="{DynamicResource MaterialDesign.Brush.Primary}" />
+                <TextBlock Text="설정"
+                           Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                           VerticalAlignment="Center" />
+            </DockPanel>
+
+            <!-- 하네스 프로바이더 -->
+            <materialDesign:Card Padding="20" Margin="0 0 0 16">
+                <StackPanel>
+                    <TextBlock Text="하네스 프로바이더"
+                               Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                               Margin="0 0 0 4" />
+                    <TextBlock Text="스캔 및 관리 대상 하네스 유형을 선택합니다."
+                               Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                               Opacity="0.6"
+                               Margin="0 0 0 16" />
+
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton Content="Claude Code"
+                                     GroupName="Provider"
+                                     IsChecked="{Binding ActiveProvider, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=ClaudeCode}"
+                                     Margin="0 0 24 0"
+                                     Style="{StaticResource MaterialDesignRadioButton}" />
+                        <RadioButton Content="Cursor"
+                                     GroupName="Provider"
+                                     IsChecked="{Binding ActiveProvider, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Cursor}"
+                                     Style="{StaticResource MaterialDesignRadioButton}" />
+                    </StackPanel>
+                </StackPanel>
+            </materialDesign:Card>
+
+            <!-- 테마 -->
+            <materialDesign:Card Padding="20" Margin="0 0 0 16">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Left" VerticalAlignment="Center">
+                        <TextBlock Text="테마"
+                                   Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                                   Margin="0 0 0 4" />
+                        <TextBlock Opacity="0.6">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignCaptionTextBlock}">
+                                    <Setter Property="Text" Value="Light 모드" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsDarkTheme}" Value="True">
+                                            <Setter Property="Text" Value="Dark 모드" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+
+                    <StackPanel DockPanel.Dock="Right"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center">
+                        <materialDesign:PackIcon Kind="WhiteBalanceSunny"
+                                                 Width="20" Height="20"
+                                                 VerticalAlignment="Center"
+                                                 Margin="0 0 8 0"
+                                                 Opacity="0.7" />
+                        <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                      IsChecked="{Binding IsDarkTheme}"
+                                      VerticalAlignment="Center" />
+                        <materialDesign:PackIcon Kind="MoonWaningCrescent"
+                                                 Width="20" Height="20"
+                                                 VerticalAlignment="Center"
+                                                 Margin="8 0 0 0"
+                                                 Opacity="0.7" />
+                    </StackPanel>
+                </DockPanel>
+            </materialDesign:Card>
+
+            <!-- 컨텍스트 윈도우 -->
+            <materialDesign:Card Padding="20" Margin="0 0 0 16">
+                <StackPanel>
+                    <TextBlock Text="컨텍스트 윈도우 크기"
+                               Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                               Margin="0 0 0 4" />
+                    <TextBlock Text="대시보드 및 프리셋의 토큰 사용률 계산 기준입니다."
+                               Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                               Opacity="0.6"
+                               Margin="0 0 0 16" />
+
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Right"
+                                   Text="토큰"
+                                   Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                   VerticalAlignment="Center"
+                                   Margin="8 0 0 0"
+                                   Opacity="0.6" />
+                        <TextBox Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                 materialDesign:HintAssist.Hint="컨텍스트 윈도우 크기"
+                                 Text="{Binding ContextWindowSize, UpdateSourceTrigger=LostFocus}"
+                                 Width="200"
+                                 HorizontalAlignment="Left" />
+                    </DockPanel>
+                </StackPanel>
+            </materialDesign:Card>
+
+            <!-- 경로 정보 -->
+            <materialDesign:Card Padding="20" Margin="0 0 0 16">
+                <StackPanel>
+                    <TextBlock Text="경로"
+                               Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                               Margin="0 0 0 12" />
+
+                    <DockPanel Margin="0 0 0 4">
+                        <TextBlock DockPanel.Dock="Left"
+                                   Text="글로벌 하네스 경로"
+                                   Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                   VerticalAlignment="Center"
+                                   Width="140" />
+                        <TextBlock Text="{Binding GlobalPath}"
+                                   Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                   Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" />
+                    </DockPanel>
+                </StackPanel>
+            </materialDesign:Card>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

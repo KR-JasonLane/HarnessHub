@@ -19,6 +19,7 @@ public partial class PresetViewModel : ObservableRecipient, IContentViewModel
 {
     private readonly IPresetService _presetService;
     private readonly IProjectContext _projectContext;
+    private readonly IAppSettingsService _appSettings;
 
     // --- View State ---
 
@@ -46,7 +47,7 @@ public partial class PresetViewModel : ObservableRecipient, IContentViewModel
     private int _combinedTotalTokens;
 
     [ObservableProperty]
-    private int _contextWindowSize = 200_000;
+    private int _contextWindowSize;
 
     [ObservableProperty]
     private double _combinedUsagePercentage;
@@ -75,10 +76,13 @@ public partial class PresetViewModel : ObservableRecipient, IContentViewModel
 
     public PresetViewModel(
         IPresetService presetService,
-        IProjectContext projectContext)
+        IProjectContext projectContext,
+        IAppSettingsService appSettings)
     {
         _presetService = presetService;
         _projectContext = projectContext;
+        _appSettings = appSettings;
+        _contextWindowSize = _appSettings.ContextWindowSize;
 
         IsActive = true;
 

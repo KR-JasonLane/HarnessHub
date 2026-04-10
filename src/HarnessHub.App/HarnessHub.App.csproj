@@ -6,6 +6,7 @@
     <ProjectReference Include="..\HarnessHub.Explorer\HarnessHub.Explorer.csproj" />
     <ProjectReference Include="..\HarnessHub.Editor\HarnessHub.Editor.csproj" />
     <ProjectReference Include="..\HarnessHub.Preset\HarnessHub.Preset.csproj" />
+    <ProjectReference Include="..\HarnessHub.Setting\HarnessHub.Setting.csproj" />
     <ProjectReference Include="..\HarnessHub.Abstract\HarnessHub.Abstract.csproj" />
     <ProjectReference Include="..\HarnessHub.Models\HarnessHub.Models.csproj" />
     <ProjectReference Include="..\HarnessHub.Infrastructure\HarnessHub.Infrastructure.csproj" />

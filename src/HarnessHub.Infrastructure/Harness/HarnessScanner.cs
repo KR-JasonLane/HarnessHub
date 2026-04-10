@@ -10,14 +10,16 @@ namespace HarnessHub.Infrastructure.Harness;
 public sealed class HarnessScanner : IHarnessScanner
 {
     private readonly ITokenCounterService _tokenCounter;
+    private readonly IAppSettingsService _appSettings;
 
-    private static readonly Dictionary<string, (HarnessFileType Type, HarnessLever Lever)> GlobalPatterns = new()
+    // === Claude Code 패턴 ===
+    private static readonly Dictionary<string, (HarnessFileType Type, HarnessLever Lever)> ClaudeGlobalPatterns = new()
     {
         ["CLAUDE.md"] = (HarnessFileType.ClaudeMd, HarnessLever.SystemPrompt),
         ["settings.json"] = (HarnessFileType.ClaudeSettings, HarnessLever.Hook),
     };
 
-    private static readonly Dictionary<string, (HarnessFileType Type, HarnessLever Lever)> ProjectPatterns = new()
+    private static readonly Dictionary<string, (HarnessFileType Type, HarnessLever Lever)> ClaudeProjectPatterns = new()
     {
         ["CLAUDE.md"] = (HarnessFileType.ClaudeMd, HarnessLever.SystemPrompt),
         ["CLAUDE.local.md"] = (HarnessFileType.ClaudeLocalMd, HarnessLever.SystemPrompt),
@@ -28,9 +30,16 @@ public sealed class HarnessScanner : IHarnessScanner
         [".env"] = (HarnessFileType.EnvConfig, HarnessLever.SystemPrompt),
     };
 
-    public HarnessScanner(ITokenCounterService tokenCounter)
+    // === Cursor 패턴 (글로벌 하네스 없음, 프로젝트만) ===
+    private static readonly Dictionary<string, (HarnessFileType Type, HarnessLever Lever)> CursorProjectPatterns = new()
+    {
+        [".cursorrules"] = (HarnessFileType.ClaudeMd, HarnessLever.SystemPrompt),
+    };
+
+    public HarnessScanner(ITokenCounterService tokenCounter, IAppSettingsService appSettings)
     {
         _tokenCounter = tokenCounter;
+        _appSettings = appSettings;
     }
 
     public Task<IReadOnlyList<HarnessFileInfo>> ScanAsync(string folderPath, HarnessScope scope)
@@ -43,7 +52,7 @@ public sealed class HarnessScanner : IHarnessScanner
             return Task.FromResult<IReadOnlyList<HarnessFileInfo>>(results);
         }
 
-        var patterns = scope == HarnessScope.Global ? GlobalPatterns : ProjectPatterns;
+        var patterns = GetPatterns(scope);
 
         foreach (var (relativePath, meta) in patterns)
         {
@@ -59,8 +68,32 @@ public sealed class HarnessScanner : IHarnessScanner
         return Task.FromResult<IReadOnlyList<HarnessFileInfo>>(results);
     }
 
+    private Dictionary<string, (HarnessFileType Type, HarnessLever Lever)> GetPatterns(HarnessScope scope)
+    {
+        return _appSettings.ActiveProvider switch
+        {
+            HarnessProvider.Cursor => scope == HarnessScope.Global
+                ? new Dictionary<string, (HarnessFileType, HarnessLever)>()
+                : CursorProjectPatterns,
+            _ => scope == HarnessScope.Global
+                ? ClaudeGlobalPatterns
+                : ClaudeProjectPatterns
+        };
+    }
+
     private void ScanWildcardPatterns(string folderPath, HarnessScope scope, List<HarnessFileInfo> results)
     {
+        if (_appSettings.ActiveProvider == HarnessProvider.Cursor)
+        {
+            if (scope == HarnessScope.Project)
+            {
+                ScanDirectory(folderPath, Path.Combine(".cursor", "rules"), "*.mdc",
+                    HarnessFileType.ClaudeRules, HarnessLever.SystemPrompt, scope, results);
+            }
+            return;
+        }
+
+        // Claude Code 와일드카드 패턴
         if (scope == HarnessScope.Global)
         {
             ScanDirectory(folderPath, "rules", "*.md", HarnessFileType.ClaudeRules, HarnessLever.SystemPrompt, scope, results);
@@ -136,7 +169,7 @@ public sealed class HarnessScanner : IHarnessScanner
             StringComparer.OrdinalIgnoreCase);
 
         // 고정 패턴에서 미생성 파일 추출
-        var patterns = scope == HarnessScope.Global ? GlobalPatterns : ProjectPatterns;
+        var patterns = GetPatterns(scope);
         foreach (var (relativePath, meta) in patterns)
         {
             var fullPath = Path.Combine(folderPath, relativePath);

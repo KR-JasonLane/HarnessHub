@@ -8,8 +8,10 @@ using HarnessHub.Infrastructure.FileSystem;
 using HarnessHub.Infrastructure.Harness;
 using HarnessHub.Infrastructure.Preset;
 using HarnessHub.Infrastructure.Project;
+using HarnessHub.Infrastructure.Settings;
 using HarnessHub.Infrastructure.Token;
 using HarnessHub.Preset.ViewModels;
+using HarnessHub.Setting.ViewModels;
 using HarnessHub.Shell.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -40,6 +42,7 @@ public static class IocBuilder
         services.AddSingleton<IFileExplorerService, FileExplorerService>();
         services.AddSingleton<IProjectContext, ProjectContext>();
         services.AddSingleton<IPresetService, PresetService>();
+        services.AddSingleton<IAppSettingsService, AppSettingsService>();
     }
 
     private static void ConfigureViewModels(IServiceCollection services)
@@ -49,5 +52,6 @@ public static class IocBuilder
         services.AddTransient<ExplorerViewModel>();
         services.AddTransient<MarkdownEditorViewModel>();
         services.AddTransient<PresetViewModel>();
+        services.AddTransient<SettingViewModel>();
     }
 }

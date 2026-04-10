@@ -5,6 +5,7 @@
   <Project Path="HarnessHub.Explorer/HarnessHub.Explorer.csproj" />
   <Project Path="HarnessHub.Editor/HarnessHub.Editor.csproj" />
   <Project Path="HarnessHub.Preset/HarnessHub.Preset.csproj" />
+  <Project Path="HarnessHub.Setting/HarnessHub.Setting.csproj" />
   <Project Path="HarnessHub.Abstract/HarnessHub.Abstract.csproj" />
   <Project Path="HarnessHub.Models/HarnessHub.Models.csproj" />
   <Project Path="HarnessHub.Infrastructure/HarnessHub.Infrastructure.csproj" />

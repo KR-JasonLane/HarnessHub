@@ -18,6 +18,7 @@ public partial class DashboardViewModel : ObservableRecipient, IContentViewModel
     private readonly IHarnessScanner _scanner;
     private readonly ITokenCounterService _tokenCounter;
     private readonly IProjectContext _projectContext;
+    private readonly IAppSettingsService _appSettings;
 
     [ObservableProperty]
     private string _globalPath;
@@ -32,7 +33,7 @@ public partial class DashboardViewModel : ObservableRecipient, IContentViewModel
     private int _totalTokens;
 
     [ObservableProperty]
-    private int _contextWindowSize = 200_000;
+    private int _contextWindowSize;
 
     [ObservableProperty]
     private double _usagePercentage;
@@ -43,13 +44,16 @@ public partial class DashboardViewModel : ObservableRecipient, IContentViewModel
     public DashboardViewModel(
         IHarnessScanner scanner,
         ITokenCounterService tokenCounter,
-        IProjectContext projectContext)
+        IProjectContext projectContext,
+        IAppSettingsService appSettings)
     {
         _scanner = scanner;
         _tokenCounter = tokenCounter;
         _projectContext = projectContext;
+        _appSettings = appSettings;
         _globalPath = _projectContext.GlobalPath;
         _projectPath = _projectContext.ProjectPath;
+        _contextWindowSize = _appSettings.ContextWindowSize;
 
         IsActive = true;
 
@@ -66,6 +70,11 @@ public partial class DashboardViewModel : ObservableRecipient, IContentViewModel
         });
 
         Messenger.Register<PresetAppliedMessage>(this, (r, m) =>
+        {
+            _ = LoadAsync();
+        });
+
+        Messenger.Register<HarnessProviderChangedMessage>(this, (r, m) =>
         {
             _ = LoadAsync();
         });
@@ -115,6 +124,7 @@ public partial class DashboardViewModel : ObservableRecipient, IContentViewModel
             }
 
             TotalTokens = allFiles.Sum(f => f.TokenCount);
+            ContextWindowSize = _appSettings.ContextWindowSize;
             UsagePercentage = ContextWindowSize > 0
                 ? (double)TotalTokens / ContextWindowSize * 100
                 : 0;
