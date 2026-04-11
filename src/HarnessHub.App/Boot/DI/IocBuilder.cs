@@ -43,6 +43,7 @@ public static class IocBuilder
         services.AddSingleton<IProjectContext, ProjectContext>();
         services.AddSingleton<IPresetService, PresetService>();
         services.AddSingleton<IAppSettingsService, AppSettingsService>();
+        services.AddSingleton<IFileDialogService, FileDialogService>();
     }
 
     private static void ConfigureViewModels(IServiceCollection services)

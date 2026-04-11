@@ -21,8 +21,23 @@ public static class WebView2Behavior
             typeof(WebView2Behavior),
             new PropertyMetadata(false));
 
+    /// <summary>
+    /// WebMessageReceived 핸들러 참조 (구독 해제용).
+    /// </summary>
+    private static readonly DependencyProperty WebMessageHandlerProperty =
+        DependencyProperty.RegisterAttached(
+            "WebMessageHandler",
+            typeof(EventHandler<CoreWebView2WebMessageReceivedEventArgs>),
+            typeof(WebView2Behavior),
+            new PropertyMetadata(null));
+
     private static bool GetIsInitialized(DependencyObject obj) => (bool)obj.GetValue(IsInitializedProperty);
     private static void SetIsInitialized(DependencyObject obj, bool value) => obj.SetValue(IsInitializedProperty, value);
+
+    private static EventHandler<CoreWebView2WebMessageReceivedEventArgs>? GetWebMessageHandler(DependencyObject obj)
+        => (EventHandler<CoreWebView2WebMessageReceivedEventArgs>?)obj.GetValue(WebMessageHandlerProperty);
+    private static void SetWebMessageHandler(DependencyObject obj, EventHandler<CoreWebView2WebMessageReceivedEventArgs>? value)
+        => obj.SetValue(WebMessageHandlerProperty, value);
 
     /// <summary>
     /// WebView2에 로드할 로컬 HTML 폴더 경로.
@@ -114,13 +129,40 @@ public static class WebView2Behavior
             folder,
             CoreWebView2HostResourceAccessKind.Allow);
 
-        webView.CoreWebView2.WebMessageReceived += (s, args) =>
-        {
-            OnWebMessageReceived(webView, args);
-        };
+        // 기존 핸들러 해제 (재진입 방지)
+        var existingHandler = GetWebMessageHandler(webView);
+        if (existingHandler is not null)
+            webView.CoreWebView2.WebMessageReceived -= existingHandler;
+
+        EventHandler<CoreWebView2WebMessageReceivedEventArgs> handler =
+            (s, args) => OnWebMessageReceived(webView, args);
+        SetWebMessageHandler(webView, handler);
+        webView.CoreWebView2.WebMessageReceived += handler;
+
+        webView.Unloaded += OnWebViewUnloaded;
 
         webView.CoreWebView2.Navigate("http://editor.local/index.html");
         SetIsInitialized(webView, true);
+    }
+
+    private static void OnWebViewUnloaded(object sender, RoutedEventArgs e)
+    {
+        if (sender is not WebView2 webView)
+            return;
+
+        webView.Unloaded -= OnWebViewUnloaded;
+
+        if (webView.CoreWebView2 is not null)
+        {
+            var handler = GetWebMessageHandler(webView);
+            if (handler is not null)
+            {
+                webView.CoreWebView2.WebMessageReceived -= handler;
+                SetWebMessageHandler(webView, null);
+            }
+        }
+
+        SetIsInitialized(webView, false);
     }
 
     private static void OnWebMessageReceived(WebView2 webView, CoreWebView2WebMessageReceivedEventArgs e)

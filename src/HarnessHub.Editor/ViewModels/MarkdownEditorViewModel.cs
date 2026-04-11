@@ -6,7 +6,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using HarnessHub.Abstract.Services;
 using HarnessHub.Abstract.ViewModels;
 using HarnessHub.Models.Harness;
-using HarnessHub.Models.Messages;
+
 
 namespace HarnessHub.Editor.ViewModels;
 
@@ -119,13 +119,21 @@ public partial class MarkdownEditorViewModel : ObservableRecipient, IContentView
     /// <inheritdoc />
     protected override void OnActivated()
     {
-        Messenger.Register<ProjectPathChangedMessage>(this, (r, m) =>
+        _projectContext.ProjectPathChanged += OnProjectPathChangedEvent;
+    }
+
+    /// <inheritdoc />
+    protected override void OnDeactivated()
+    {
+        _projectContext.ProjectPathChanged -= OnProjectPathChangedEvent;
+    }
+
+    private void OnProjectPathChangedEvent(string path)
+    {
+        if (!IsFileOpen)
         {
-            if (!IsFileOpen)
-            {
-                _ = LoadHomeAsync();
-            }
-        });
+            _ = LoadHomeAsync();
+        }
     }
 
     /// <summary>

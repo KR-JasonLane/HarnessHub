@@ -17,8 +17,12 @@ public interface IProjectContext
     string? ProjectPath { get; }
 
     /// <summary>
+    /// 프로젝트 경로가 변경되었을 때 발생한다.
+    /// </summary>
+    event Action<string>? ProjectPathChanged;
+
+    /// <summary>
     /// 프로젝트 경로를 변경한다.
-    /// 변경 시 ProjectPathChangedMessage를 발행한다.
     /// </summary>
     /// <param name="path">새 프로젝트 경로.</param>
     void SetProjectPath(string path);

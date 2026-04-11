@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using CommunityToolkit.Mvvm.DependencyInjection;
 using HarnessHub.Abstract.Services;
 using HarnessHub.Abstract.ViewModels;
 using HarnessHub.Dashboard.ViewModels;
@@ -7,6 +6,7 @@ using HarnessHub.Editor.ViewModels;
 using HarnessHub.Explorer.ViewModels;
 using HarnessHub.Preset.ViewModels;
 using HarnessHub.Setting.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HarnessHub.App.Services;
 
@@ -16,7 +16,13 @@ namespace HarnessHub.App.Services;
 /// </summary>
 public sealed class NavigationService : INavigationService
 {
+    private readonly IServiceProvider _serviceProvider;
     private readonly ConcurrentDictionary<int, IContentViewModel> _cache = new();
+
+    public NavigationService(IServiceProvider serviceProvider)
+    {
+        _serviceProvider = serviceProvider;
+    }
 
     public IContentViewModel? ResolveContent(int index)
     {
@@ -31,15 +37,15 @@ public sealed class NavigationService : INavigationService
         return viewModel;
     }
 
-    private static IContentViewModel? CreateContent(int index)
+    private IContentViewModel? CreateContent(int index)
     {
         IContentViewModel? viewModel = index switch
         {
-            0 => Ioc.Default.GetService<DashboardViewModel>(),
-            1 => Ioc.Default.GetService<ExplorerViewModel>(),
-            2 => Ioc.Default.GetService<MarkdownEditorViewModel>(),
-            3 => Ioc.Default.GetService<PresetViewModel>(),
-            4 => Ioc.Default.GetService<SettingViewModel>(),
+            0 => _serviceProvider.GetService<DashboardViewModel>(),
+            1 => _serviceProvider.GetService<ExplorerViewModel>(),
+            2 => _serviceProvider.GetService<MarkdownEditorViewModel>(),
+            3 => _serviceProvider.GetService<PresetViewModel>(),
+            4 => _serviceProvider.GetService<SettingViewModel>(),
             _ => null
         };
 

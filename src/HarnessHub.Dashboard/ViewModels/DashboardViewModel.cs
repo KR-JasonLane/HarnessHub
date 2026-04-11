@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -7,6 +6,7 @@ using HarnessHub.Abstract.Services;
 using HarnessHub.Abstract.ViewModels;
 using HarnessHub.Models.Harness;
 using HarnessHub.Models.Messages;
+using Serilog;
 
 namespace HarnessHub.Dashboard.ViewModels;
 
@@ -19,6 +19,7 @@ public partial class DashboardViewModel : ObservableRecipient, IContentViewModel
     private readonly ITokenCounterService _tokenCounter;
     private readonly IProjectContext _projectContext;
     private readonly IAppSettingsService _appSettings;
+    private readonly IFileDialogService _fileDialog;
 
     [ObservableProperty]
     private string _globalPath;
@@ -45,12 +46,14 @@ public partial class DashboardViewModel : ObservableRecipient, IContentViewModel
         IHarnessScanner scanner,
         ITokenCounterService tokenCounter,
         IProjectContext projectContext,
-        IAppSettingsService appSettings)
+        IAppSettingsService appSettings,
+        IFileDialogService fileDialog)
     {
         _scanner = scanner;
         _tokenCounter = tokenCounter;
         _projectContext = projectContext;
         _appSettings = appSettings;
+        _fileDialog = fileDialog;
         _globalPath = _projectContext.GlobalPath;
         _projectPath = _projectContext.ProjectPath;
         _contextWindowSize = _appSettings.ContextWindowSize;
@@ -63,34 +66,40 @@ public partial class DashboardViewModel : ObservableRecipient, IContentViewModel
     /// <inheritdoc />
     protected override void OnActivated()
     {
-        Messenger.Register<ProjectPathChangedMessage>(this, (r, m) =>
-        {
-            ProjectPath = m.ProjectPath;
-            _ = LoadAsync();
-        });
+        _projectContext.ProjectPathChanged += OnProjectPathChangedEvent;
+        _appSettings.ProviderChanged += OnProviderChangedEvent;
 
         Messenger.Register<PresetAppliedMessage>(this, (r, m) =>
         {
             _ = LoadAsync();
         });
+    }
 
-        Messenger.Register<HarnessProviderChangedMessage>(this, (r, m) =>
-        {
-            _ = LoadAsync();
-        });
+    /// <inheritdoc />
+    protected override void OnDeactivated()
+    {
+        _projectContext.ProjectPathChanged -= OnProjectPathChangedEvent;
+        _appSettings.ProviderChanged -= OnProviderChangedEvent;
+    }
+
+    private void OnProjectPathChangedEvent(string path)
+    {
+        ProjectPath = path;
+        _ = LoadAsync();
+    }
+
+    private void OnProviderChangedEvent(HarnessProvider provider)
+    {
+        _ = LoadAsync();
     }
 
     [RelayCommand]
-    private async Task OpenFolderAsync()
+    private void OpenFolder()
     {
-        var dialog = new Microsoft.Win32.OpenFolderDialog
+        var folderPath = _fileDialog.ShowOpenFolderDialog("프로젝트 폴더 선택");
+        if (folderPath is not null)
         {
-            Title = "프로젝트 폴더 선택"
-        };
-
-        if (dialog.ShowDialog() == true)
-        {
-            _projectContext.SetProjectPath(dialog.FolderName);
+            _projectContext.SetProjectPath(folderPath);
         }
     }
 
@@ -99,6 +108,8 @@ public partial class DashboardViewModel : ObservableRecipient, IContentViewModel
     {
         await LoadAsync();
     }
+
+    private static readonly HarnessLever[] AllLevers = Enum.GetValues<HarnessLever>();
 
     private async Task LoadAsync()
     {
@@ -131,6 +142,10 @@ public partial class DashboardViewModel : ObservableRecipient, IContentViewModel
 
             BuildLeverStatuses(allFiles);
         }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "대시보드 로드 실패");
+        }
         finally
         {
             IsLoading = false;
@@ -139,16 +154,18 @@ public partial class DashboardViewModel : ObservableRecipient, IContentViewModel
 
     private void BuildLeverStatuses(List<HarnessFileInfo> files)
     {
-        LeverStatuses.Clear();
+        var byLever = files.GroupBy(f => f.Lever)
+                           .ToDictionary(g => g.Key, g => g.Count());
 
-        foreach (var lever in Enum.GetValues<HarnessLever>())
+        LeverStatuses.Clear();
+        foreach (var lever in AllLevers)
         {
-            var leverFiles = files.Where(f => f.Lever == lever).ToList();
+            byLever.TryGetValue(lever, out var count);
             LeverStatuses.Add(new LeverStatus
             {
                 Lever = lever,
-                IsActive = leverFiles.Count > 0,
-                FileCount = leverFiles.Count,
+                IsActive = count > 0,
+                FileCount = count,
                 Description = GetLeverDescription(lever)
             });
         }

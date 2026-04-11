@@ -131,7 +131,7 @@ public sealed class PresetService : IPresetService
     }
 
     /// <inheritdoc />
-    public Task ApplyAsync(HarnessPreset preset, string targetPath, bool backup = true)
+    public async Task ApplyAsync(HarnessPreset preset, string targetPath, bool backup = true)
     {
         if (!Directory.Exists(preset.FolderPath))
         {
@@ -140,7 +140,7 @@ public sealed class PresetService : IPresetService
 
         if (backup)
         {
-            BackupExistingFiles(targetPath, preset.Scope);
+            await BackupExistingFilesAsync(targetPath, preset.Scope);
         }
 
         foreach (var file in preset.Files)
@@ -164,7 +164,6 @@ public sealed class PresetService : IPresetService
         }
 
         Log.Information("Applied preset: {PresetName} to {TargetPath}", preset.Name, targetPath);
-        return Task.CompletedTask;
     }
 
     /// <inheritdoc />
@@ -361,11 +360,17 @@ public sealed class PresetService : IPresetService
         return Path.Combine(GetScopeDirectory(scope), sanitized);
     }
 
+    private static readonly char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();
+
     private static string SanitizeFolderName(string name)
     {
-        var invalidChars = Path.GetInvalidFileNameChars();
-        var sanitized = new string(name.Select(c => invalidChars.Contains(c) ? '-' : c).ToArray());
-        return sanitized.Trim().TrimEnd('.');
+        var chars = name.ToCharArray();
+        for (var i = 0; i < chars.Length; i++)
+        {
+            if (Array.IndexOf(InvalidFileNameChars, chars[i]) >= 0)
+                chars[i] = '-';
+        }
+        return new string(chars).Trim().TrimEnd('.');
     }
 
     private PresetFileEntryDto CopyFileToPreset(string sourcePath, string presetDir, HarnessScope scope)
@@ -411,11 +416,11 @@ public sealed class PresetService : IPresetService
         };
     }
 
-    private void BackupExistingFiles(string targetPath, HarnessScope scope)
+    private async Task BackupExistingFilesAsync(string targetPath, HarnessScope scope)
     {
         try
         {
-            var existingFiles = _scanner.ScanAsync(targetPath, scope).GetAwaiter().GetResult();
+            var existingFiles = await _scanner.ScanAsync(targetPath, scope);
             if (existingFiles.Count == 0)
             {
                 return;

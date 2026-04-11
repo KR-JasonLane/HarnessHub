@@ -20,6 +20,7 @@ public partial class ExplorerViewModel : ObservableRecipient, IContentViewModel
     private readonly IHarnessScanner _scanner;
     private readonly IFileExplorerService _fileExplorerService;
     private readonly IProjectContext _projectContext;
+    private readonly IFileDialogService _fileDialog;
 
     [ObservableProperty]
     private string _globalPath;
@@ -39,11 +40,13 @@ public partial class ExplorerViewModel : ObservableRecipient, IContentViewModel
     public ExplorerViewModel(
         IHarnessScanner scanner,
         IFileExplorerService fileExplorerService,
-        IProjectContext projectContext)
+        IProjectContext projectContext,
+        IFileDialogService fileDialog)
     {
         _scanner = scanner;
         _fileExplorerService = fileExplorerService;
         _projectContext = projectContext;
+        _fileDialog = fileDialog;
         _globalPath = _projectContext.GlobalPath;
         _projectPath = _projectContext.ProjectPath;
 
@@ -55,24 +58,28 @@ public partial class ExplorerViewModel : ObservableRecipient, IContentViewModel
     /// <inheritdoc />
     protected override void OnActivated()
     {
-        Messenger.Register<ProjectPathChangedMessage>(this, (r, m) =>
-        {
-            ProjectPath = m.ProjectPath;
-            _ = LoadAsync();
-        });
+        _projectContext.ProjectPathChanged += OnProjectPathChangedEvent;
+    }
+
+    /// <inheritdoc />
+    protected override void OnDeactivated()
+    {
+        _projectContext.ProjectPathChanged -= OnProjectPathChangedEvent;
+    }
+
+    private void OnProjectPathChangedEvent(string path)
+    {
+        ProjectPath = path;
+        _ = LoadAsync();
     }
 
     [RelayCommand]
-    private async Task OpenFolderAsync()
+    private void OpenFolder()
     {
-        var dialog = new Microsoft.Win32.OpenFolderDialog
+        var folderPath = _fileDialog.ShowOpenFolderDialog("프로젝트 폴더 선택");
+        if (folderPath is not null)
         {
-            Title = "프로젝트 폴더 선택"
-        };
-
-        if (dialog.ShowDialog() == true)
-        {
-            _projectContext.SetProjectPath(dialog.FolderName);
+            _projectContext.SetProjectPath(folderPath);
         }
     }
 

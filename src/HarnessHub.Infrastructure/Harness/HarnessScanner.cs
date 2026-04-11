@@ -68,12 +68,14 @@ public sealed class HarnessScanner : IHarnessScanner
         return Task.FromResult<IReadOnlyList<HarnessFileInfo>>(results);
     }
 
+    private static readonly Dictionary<string, (HarnessFileType, HarnessLever)> EmptyPatterns = new();
+
     private Dictionary<string, (HarnessFileType Type, HarnessLever Lever)> GetPatterns(HarnessScope scope)
     {
         return _appSettings.ActiveProvider switch
         {
             HarnessProvider.Cursor => scope == HarnessScope.Global
-                ? new Dictionary<string, (HarnessFileType, HarnessLever)>()
+                ? EmptyPatterns
                 : CursorProjectPatterns,
             _ => scope == HarnessScope.Global
                 ? ClaudeGlobalPatterns

@@ -1,9 +1,7 @@
 using System.IO;
 using System.Text.Json;
-using CommunityToolkit.Mvvm.Messaging;
 using HarnessHub.Abstract.Services;
 using HarnessHub.Models.Harness;
-using HarnessHub.Models.Messages;
 using Serilog;
 
 namespace HarnessHub.Infrastructure.Settings;
@@ -42,6 +40,9 @@ public sealed class AppSettingsService : IAppSettingsService
     public int ContextWindowSize => _contextWindowSize;
 
     /// <inheritdoc />
+    public event Action<HarnessProvider>? ProviderChanged;
+
+    /// <inheritdoc />
     public void SetProvider(HarnessProvider provider)
     {
         if (_activeProvider == provider)
@@ -51,7 +52,7 @@ public sealed class AppSettingsService : IAppSettingsService
         Save();
 
         Log.Information("하네스 프로바이더 변경: {Provider}", provider);
-        WeakReferenceMessenger.Default.Send(new HarnessProviderChangedMessage(provider));
+        ProviderChanged?.Invoke(provider);
     }
 
     /// <inheritdoc />

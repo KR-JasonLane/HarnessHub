@@ -20,6 +20,7 @@ public partial class PresetViewModel : ObservableRecipient, IContentViewModel
     private readonly IPresetService _presetService;
     private readonly IProjectContext _projectContext;
     private readonly IAppSettingsService _appSettings;
+    private readonly IFileDialogService _fileDialog;
 
     // --- View State ---
 
@@ -77,11 +78,13 @@ public partial class PresetViewModel : ObservableRecipient, IContentViewModel
     public PresetViewModel(
         IPresetService presetService,
         IProjectContext projectContext,
-        IAppSettingsService appSettings)
+        IAppSettingsService appSettings,
+        IFileDialogService fileDialog)
     {
         _presetService = presetService;
         _projectContext = projectContext;
         _appSettings = appSettings;
+        _fileDialog = fileDialog;
         _contextWindowSize = _appSettings.ContextWindowSize;
 
         IsActive = true;
@@ -92,10 +95,18 @@ public partial class PresetViewModel : ObservableRecipient, IContentViewModel
     /// <inheritdoc />
     protected override void OnActivated()
     {
-        Messenger.Register<ProjectPathChangedMessage>(this, (r, m) =>
-        {
-            _ = LoadAsync();
-        });
+        _projectContext.ProjectPathChanged += OnProjectPathChangedEvent;
+    }
+
+    /// <inheritdoc />
+    protected override void OnDeactivated()
+    {
+        _projectContext.ProjectPathChanged -= OnProjectPathChangedEvent;
+    }
+
+    private void OnProjectPathChangedEvent(string path)
+    {
+        _ = LoadAsync();
     }
 
     /// <summary>
@@ -333,21 +344,17 @@ public partial class PresetViewModel : ObservableRecipient, IContentViewModel
             return;
         }
 
-        var dialog = new Microsoft.Win32.SaveFileDialog
-        {
-            Title = "프리셋 내보내기",
-            FileName = $"{preset.Name}.json",
-            Filter = "JSON 파일 (*.json)|*.json"
-        };
+        var exportPath = _fileDialog.ShowSaveFileDialog(
+            "프리셋 내보내기", $"{preset.Name}.json", "JSON 파일 (*.json)|*.json");
 
-        if (dialog.ShowDialog() != true)
+        if (exportPath is null)
         {
             return;
         }
 
         try
         {
-            await _presetService.ExportAsync(preset, dialog.FileName);
+            await _presetService.ExportAsync(preset, exportPath);
         }
         catch (Exception ex)
         {
@@ -361,25 +368,22 @@ public partial class PresetViewModel : ObservableRecipient, IContentViewModel
     [RelayCommand]
     private async Task ImportPresetAsync()
     {
-        var dialog = new Microsoft.Win32.OpenFileDialog
-        {
-            Title = "프리셋 가져오기",
-            Filter = "JSON 파일 (*.json)|*.json"
-        };
+        var importPath = _fileDialog.ShowOpenFileDialog(
+            "프리셋 가져오기", "JSON 파일 (*.json)|*.json");
 
-        if (dialog.ShowDialog() != true)
+        if (importPath is null)
         {
             return;
         }
 
         try
         {
-            await _presetService.ImportAsync(dialog.FileName, HarnessScope.Project);
+            await _presetService.ImportAsync(importPath, HarnessScope.Project);
             await LoadAsync();
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Failed to import preset from {Path}", dialog.FileName);
+            Log.Error(ex, "Failed to import preset from {Path}", importPath);
         }
     }
 

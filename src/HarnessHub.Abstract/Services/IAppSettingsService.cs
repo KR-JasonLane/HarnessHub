@@ -19,8 +19,12 @@ public interface IAppSettingsService
     int ContextWindowSize { get; }
 
     /// <summary>
+    /// 하네스 프로바이더가 변경되었을 때 발생한다.
+    /// </summary>
+    event Action<HarnessProvider>? ProviderChanged;
+
+    /// <summary>
     /// 하네스 프로바이더를 변경한다.
-    /// 변경 시 <see cref="HarnessProviderChangedMessage"/>를 발행한다.
     /// </summary>
     void SetProvider(HarnessProvider provider);
 
