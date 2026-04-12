@@ -34,8 +34,13 @@ public partial class ExplorerViewModel : ObservableRecipient, IContentViewModel
     [ObservableProperty]
     private FolderNode? _selectedNode;
 
+    [ObservableProperty]
+    private string _filterText = string.Empty;
+
     public ObservableCollection<FolderNode> RootNodes { get; } = new();
-    public ObservableCollection<HarnessFileInfo> HarnessFiles { get; } = new();
+    public ObservableCollection<HarnessFileInfo> FilteredHarnessFiles { get; } = new();
+
+    private List<HarnessFileInfo> _allHarnessFiles = new();
 
     public ExplorerViewModel(
         IHarnessScanner scanner,
@@ -65,6 +70,27 @@ public partial class ExplorerViewModel : ObservableRecipient, IContentViewModel
     protected override void OnDeactivated()
     {
         _projectContext.ProjectPathChanged -= OnProjectPathChangedEvent;
+    }
+
+    partial void OnFilterTextChanged(string value)
+    {
+        ApplyFilter();
+    }
+
+    private void ApplyFilter()
+    {
+        FilteredHarnessFiles.Clear();
+        var filtered = string.IsNullOrWhiteSpace(FilterText)
+            ? _allHarnessFiles
+            : _allHarnessFiles.Where(f =>
+                f.FileName.Contains(FilterText, StringComparison.OrdinalIgnoreCase) ||
+                f.FileType.ToString().Contains(FilterText, StringComparison.OrdinalIgnoreCase) ||
+                f.Lever.ToString().Contains(FilterText, StringComparison.OrdinalIgnoreCase));
+
+        foreach (var file in filtered)
+        {
+            FilteredHarnessFiles.Add(file);
+        }
     }
 
     private void OnProjectPathChangedEvent(string path)
@@ -127,11 +153,8 @@ public partial class ExplorerViewModel : ObservableRecipient, IContentViewModel
                 allFiles.AddRange(projectFiles);
             }
 
-            HarnessFiles.Clear();
-            foreach (var file in allFiles)
-            {
-                HarnessFiles.Add(file);
-            }
+            _allHarnessFiles = allFiles;
+            ApplyFilter();
 
             // 트리 구성
             RootNodes.Clear();

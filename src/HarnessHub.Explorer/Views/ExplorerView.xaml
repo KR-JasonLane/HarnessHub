@@ -144,12 +144,25 @@
                 <!-- 우측: 하네스 파일 목록 -->
                 <materialDesign:Card Grid.Column="2" Padding="0">
                     <DockPanel>
-                        <TextBlock DockPanel.Dock="Top"
-                                   Text="하네스 파일 목록"
-                                   Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
-                                   Margin="12 8" />
+                        <DockPanel DockPanel.Dock="Top" Margin="12 8">
+                            <TextBlock DockPanel.Dock="Left"
+                                       Text="하네스 파일 목록"
+                                       Style="{StaticResource MaterialDesignSubtitle2TextBlock}"
+                                       VerticalAlignment="Center" />
+                            <TextBox DockPanel.Dock="Right"
+                                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                     materialDesign:HintAssist.Hint="필터..."
+                                     materialDesign:TextFieldAssist.HasLeadingIcon="True"
+                                     materialDesign:TextFieldAssist.LeadingIcon="Magnify"
+                                     Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}"
+                                     Width="200"
+                                     Padding="4 2"
+                                     Margin="8 0 0 0"
+                                     VerticalAlignment="Center"
+                                     HorizontalAlignment="Right" />
+                        </DockPanel>
 
-                        <DataGrid ItemsSource="{Binding HarnessFiles}"
+                        <DataGrid ItemsSource="{Binding FilteredHarnessFiles}"
                                   AutoGenerateColumns="False"
                                   IsReadOnly="True"
                                   CanUserAddRows="False"

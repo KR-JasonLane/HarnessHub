@@ -21,6 +21,7 @@ public partial class MarkdownEditorViewModel : ObservableRecipient, IContentView
     private readonly ITokenCounterService _tokenCounter;
     private readonly IProjectContext _projectContext;
     private readonly IHarnessScanner _scanner;
+    private readonly IHarnessTemplateService _templateService;
 
     private string? _originalContent;
     private bool _isNewFile;
@@ -97,12 +98,14 @@ public partial class MarkdownEditorViewModel : ObservableRecipient, IContentView
         IThemeService themeService,
         ITokenCounterService tokenCounter,
         IProjectContext projectContext,
-        IHarnessScanner scanner)
+        IHarnessScanner scanner,
+        IHarnessTemplateService templateService)
     {
         _themeService = themeService;
         _tokenCounter = tokenCounter;
         _projectContext = projectContext;
         _scanner = scanner;
+        _templateService = templateService;
         _editorTheme = _themeService.IsDarkTheme ? "dark" : "light";
 
         var assemblyLocation = Path.GetDirectoryName(typeof(MarkdownEditorViewModel).Assembly.Location);
@@ -242,15 +245,17 @@ public partial class MarkdownEditorViewModel : ObservableRecipient, IContentView
             fullPath = Path.Combine(basePath, template.RelativePath);
         }
 
+        var templateContent = _templateService.GetTemplate(template.FileType);
+
         FilePath = fullPath;
         FileName = Path.GetFileName(fullPath);
         FileType = Path.GetExtension(fullPath).TrimStart('.');
-        _originalContent = string.Empty;
+        _originalContent = templateContent;
         _isNewFile = true;
         IsModified = false;
-        TokenCount = 0;
+        TokenCount = templateContent.Length > 0 ? _tokenCounter.CountTokens(templateContent) : 0;
 
-        MarkdownToLoad = string.Empty;
+        MarkdownToLoad = templateContent;
 
         return Task.CompletedTask;
     }
