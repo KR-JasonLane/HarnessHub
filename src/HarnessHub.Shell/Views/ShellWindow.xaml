@@ -22,15 +22,17 @@
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
                     <materialDesign:PackIcon Kind="WhiteBalanceSunny"
-                                             Width="16" Height="16"
+                                             Width="18" Height="18"
                                              VerticalAlignment="Center"
                                              Foreground="{DynamicResource MaterialDesign.Brush.Primary.Foreground}" />
                     <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}"
                                   IsChecked="{Binding IsDarkTheme}"
-                                  Margin="4 0"
+                                  Margin="6 0"
+                                  ToolTip="테마 전환"
+                                  AutomationProperties.Name="테마 전환"
                                   VerticalAlignment="Center" />
                     <materialDesign:PackIcon Kind="MoonWaningCrescent"
-                                             Width="16" Height="16"
+                                             Width="18" Height="18"
                                              VerticalAlignment="Center"
                                              Foreground="{DynamicResource MaterialDesign.Brush.Primary.Foreground}" />
                 </StackPanel>
@@ -59,22 +61,27 @@
             </ListBox.ItemContainerStyle>
 
             <ListBoxItem Content="대시보드"
+                         AutomationProperties.Name="대시보드"
                          materialDesign:NavigationRailAssist.SelectedIcon="ViewDashboard"
                          materialDesign:NavigationRailAssist.UnselectedIcon="ViewDashboardOutline" />
 
             <ListBoxItem Content="탐색기"
+                         AutomationProperties.Name="탐색기"
                          materialDesign:NavigationRailAssist.SelectedIcon="FolderSearch"
                          materialDesign:NavigationRailAssist.UnselectedIcon="FolderSearchOutline" />
 
             <ListBoxItem Content="에디터"
+                         AutomationProperties.Name="에디터"
                          materialDesign:NavigationRailAssist.SelectedIcon="FileEdit"
                          materialDesign:NavigationRailAssist.UnselectedIcon="FileEditOutline" />
 
             <ListBoxItem Content="프리셋"
+                         AutomationProperties.Name="프리셋"
                          materialDesign:NavigationRailAssist.SelectedIcon="Tune"
                          materialDesign:NavigationRailAssist.UnselectedIcon="TuneVariant" />
 
             <ListBoxItem Content="설정"
+                         AutomationProperties.Name="설정"
                          materialDesign:NavigationRailAssist.SelectedIcon="Cog"
                          materialDesign:NavigationRailAssist.UnselectedIcon="CogOutline" />
         </ListBox>

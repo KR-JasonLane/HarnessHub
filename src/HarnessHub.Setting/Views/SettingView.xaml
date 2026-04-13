@@ -77,15 +77,16 @@
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Center">
                         <materialDesign:PackIcon Kind="WhiteBalanceSunny"
-                                                 Width="20" Height="20"
+                                                 Width="24" Height="24"
                                                  VerticalAlignment="Center"
                                                  Margin="0 0 8 0"
                                                  Opacity="0.7" />
                         <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}"
                                       IsChecked="{Binding IsDarkTheme}"
+                                      ToolTip="테마 전환"
                                       VerticalAlignment="Center" />
                         <materialDesign:PackIcon Kind="MoonWaningCrescent"
-                                                 Width="20" Height="20"
+                                                 Width="24" Height="24"
                                                  VerticalAlignment="Center"
                                                  Margin="8 0 0 0"
                                                  Opacity="0.7" />
@@ -133,11 +134,13 @@
                                    Style="{StaticResource MaterialDesignBody2TextBlock}"
                                    VerticalAlignment="Center"
                                    Width="140" />
-                        <TextBlock Text="{Binding GlobalPath}"
-                                   Style="{StaticResource MaterialDesignBody2TextBlock}"
-                                   Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
-                                   VerticalAlignment="Center"
-                                   TextTrimming="CharacterEllipsis" />
+                        <TextBox Text="{Binding GlobalPath, Mode=OneWay}"
+                                 IsReadOnly="True"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
+                                 VerticalAlignment="Center"
+                                 ToolTip="클릭하여 선택 후 복사 가능" />
                     </DockPanel>
                 </StackPanel>
             </materialDesign:Card>

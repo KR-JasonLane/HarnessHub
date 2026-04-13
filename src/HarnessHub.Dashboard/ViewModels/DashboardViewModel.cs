@@ -39,6 +39,9 @@ public partial class DashboardViewModel : ObservableRecipient, IContentViewModel
     [ObservableProperty]
     private double _usagePercentage;
 
+    [ObservableProperty]
+    private string? _errorMessage;
+
     public ObservableCollection<LeverStatus> LeverStatuses { get; } = new();
     public ObservableCollection<HarnessFileInfo> HarnessFiles { get; } = new();
 
@@ -114,6 +117,7 @@ public partial class DashboardViewModel : ObservableRecipient, IContentViewModel
     private async Task LoadAsync()
     {
         IsLoading = true;
+        ErrorMessage = null;
 
         try
         {
@@ -145,6 +149,7 @@ public partial class DashboardViewModel : ObservableRecipient, IContentViewModel
         catch (Exception ex)
         {
             Log.Error(ex, "대시보드 로드 실패");
+            ErrorMessage = "하네스 파일 로드에 실패했습니다.";
         }
         finally
         {

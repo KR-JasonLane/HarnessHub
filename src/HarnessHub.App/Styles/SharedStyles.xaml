@@ -1,0 +1,44 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib"
+                    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                    xmlns:converters="clr-namespace:HarnessHub.Util.Converters;assembly=HarnessHub.Util">
+
+    <!-- ===== 공통 컨버터 ===== -->
+    <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    <converters:EqualityMultiValueConverter x:Key="EqualityConverter" />
+    <converters:EnumToVisibilityConverter x:Key="EnumToVis" />
+    <converters:EnumToBoolConverter x:Key="EnumToBool" />
+
+    <!-- ===== 간격 상수 ===== -->
+    <Thickness x:Key="Spacing.Section">0 24 0 8</Thickness>
+    <Thickness x:Key="Spacing.Card">0 0 0 12</Thickness>
+    <Thickness x:Key="Spacing.Inner">12 8</Thickness>
+
+    <!-- ===== 공통 DataGrid 스타일 ===== -->
+    <Style x:Key="HarnessDataGrid" TargetType="DataGrid" BasedOn="{StaticResource MaterialDesignDataGrid}">
+        <Setter Property="AutoGenerateColumns" Value="False" />
+        <Setter Property="IsReadOnly" Value="True" />
+        <Setter Property="CanUserAddRows" Value="False" />
+        <Setter Property="CanUserDeleteRows" Value="False" />
+        <Setter Property="HeadersVisibility" Value="Column" />
+        <Setter Property="GridLinesVisibility" Value="Horizontal" />
+        <Setter Property="materialDesign:DataGridAssist.ColumnHeaderPadding" Value="12 8" />
+        <Setter Property="materialDesign:DataGridAssist.CellPadding" Value="12 8" />
+    </Style>
+
+    <!-- ===== 빈 상태 메시지 스타일 ===== -->
+    <Style x:Key="EmptyStateText" TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignBody2TextBlock}">
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Opacity" Value="0.6" />
+        <Setter Property="Margin" Value="16 24" />
+    </Style>
+
+    <!-- ===== 에러 메시지 카드 스타일 ===== -->
+    <Style x:Key="ErrorCard" TargetType="materialDesign:Card">
+        <Setter Property="Padding" Value="12" />
+        <Setter Property="Margin" Value="0 0 0 12" />
+        <Setter Property="Background" Value="{DynamicResource MaterialDesign.Brush.ValidationError.Background}" />
+    </Style>
+
+</ResourceDictionary>

@@ -13,6 +13,9 @@
                     SecondaryColor="Lime" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml" />
 
+                <!-- 공통 스타일 및 컨버터 -->
+                <ResourceDictionary Source="Styles/SharedStyles.xaml" />
+
                 <!-- ViewModel → View DataTemplate 매핑 -->
                 <ResourceDictionary Source="MVVM/Mappings.xaml" />
             </ResourceDictionary.MergedDictionaries>

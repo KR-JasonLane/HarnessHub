@@ -8,19 +8,15 @@
              mc:Ignorable="d"
              d:DesignHeight="700" d:DesignWidth="900">
 
-    <UserControl.Resources>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-    </UserControl.Resources>
-
     <Grid>
         <!-- 로딩 인디케이터 -->
         <ProgressBar Style="{StaticResource MaterialDesignLinearProgressBar}"
                      IsIndeterminate="True"
                      VerticalAlignment="Top"
-                     Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                     Panel.ZIndex="1"
+                     Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}" />
 
-        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                      Padding="8">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="8">
 
                 <!-- 프로젝트 경로 섹션 -->
@@ -65,10 +61,22 @@
                     </Grid>
                 </materialDesign:Card>
 
+                <!-- 에러 메시지 -->
+                <materialDesign:Card Padding="12" Margin="0 0 0 12"
+                                     Visibility="{Binding ErrorMessage, TargetNullValue=Collapsed, FallbackValue=Collapsed}">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="AlertCircle" Width="20" Height="20"
+                                                 VerticalAlignment="Center" Margin="0 0 8 0" />
+                        <TextBlock Text="{Binding ErrorMessage}"
+                                   Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </materialDesign:Card>
+
                 <!-- 5대 레버 상태 카드 -->
                 <TextBlock Text="하네스 레버 상태"
                            Style="{StaticResource MaterialDesignHeadline6TextBlock}"
-                           Margin="0 0 0 8" />
+                           Margin="0 8 0 8" />
 
                 <ItemsControl ItemsSource="{Binding LeverStatuses}">
                     <ItemsControl.ItemsPanel>
@@ -150,18 +158,25 @@
                 <!-- 하네스 파일 목록 -->
                 <TextBlock Text="하네스 파일 목록"
                            Style="{StaticResource MaterialDesignHeadline6TextBlock}"
-                           Margin="0 8 0 8" />
+                           Margin="0 24 0 8" />
+
+                <!-- 파일 없을 때 -->
+                <TextBlock Text="하네스 파일이 없습니다. 프로젝트 폴더를 선택하세요.">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource EmptyStateText}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HarnessFiles.Count}" Value="0">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
 
                 <materialDesign:Card Padding="0">
                     <DataGrid ItemsSource="{Binding HarnessFiles}"
-                              AutoGenerateColumns="False"
-                              IsReadOnly="True"
-                              CanUserAddRows="False"
-                              CanUserDeleteRows="False"
-                              HeadersVisibility="Column"
-                              GridLinesVisibility="Horizontal"
-                              materialDesign:DataGridAssist.ColumnHeaderPadding="12 8"
-                              materialDesign:DataGridAssist.CellPadding="12 8"
+                              Style="{StaticResource HarnessDataGrid}"
                               behaviors:DataGridDoubleClickBehavior.Command="{Binding OpenFileCommand}">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="파일명"

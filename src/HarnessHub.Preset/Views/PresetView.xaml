@@ -91,11 +91,13 @@
                                                 <Style.Triggers>
                                                     <DataTrigger Value="True">
                                                         <DataTrigger.Binding>
-                                                            <MultiBinding StringFormat="{}{0}">
+                                                            <MultiBinding Converter="{StaticResource EqualityConverter}">
                                                                 <Binding Path="Name" />
+                                                                <Binding Path="DataContext.ActiveGlobalPresetName"
+                                                                         RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
                                                             </MultiBinding>
                                                         </DataTrigger.Binding>
-                                                        <Setter Property="Visibility" Value="Hidden" />
+                                                        <Setter Property="Visibility" Value="Visible" />
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -156,12 +158,9 @@
                 </ItemsControl>
 
                 <!-- 글로벌 프리셋 없을 때 -->
-                <TextBlock Text="글로벌 프리셋이 없습니다. '현재 캡처' 또는 '새 프리셋'으로 생성하세요."
-                           Opacity="0.5"
-                           Margin="16 8"
-                           HorizontalAlignment="Center">
+                <TextBlock Text="글로벌 프리셋이 없습니다. '현재 캡처' 또는 '새 프리셋'으로 생성하세요.">
                     <TextBlock.Style>
-                        <Style TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignBody2TextBlock}">
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource EmptyStateText}">
                             <Setter Property="Visibility" Value="Collapsed" />
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding GlobalPresets.Count}" Value="0">
@@ -202,8 +201,25 @@
                                                              Width="24" Height="24"
                                                              VerticalAlignment="Center"
                                                              Margin="0 0 12 0"
-                                                             Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
-                                                             Visibility="Hidden" />
+                                                             Foreground="{DynamicResource MaterialDesign.Brush.Primary}">
+                                        <materialDesign:PackIcon.Style>
+                                            <Style TargetType="materialDesign:PackIcon">
+                                                <Setter Property="Visibility" Value="Hidden" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Value="True">
+                                                        <DataTrigger.Binding>
+                                                            <MultiBinding Converter="{StaticResource EqualityConverter}">
+                                                                <Binding Path="Name" />
+                                                                <Binding Path="DataContext.ActiveProjectPresetName"
+                                                                         RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
+                                                            </MultiBinding>
+                                                        </DataTrigger.Binding>
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </materialDesign:PackIcon.Style>
+                                    </materialDesign:PackIcon>
 
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                         <TextBlock Text="{Binding Name}"
@@ -257,13 +273,10 @@
                 </ItemsControl>
 
                 <!-- 프로젝트 프리셋 없을 때 -->
-                <TextBlock Opacity="0.5"
-                           Margin="16 8"
-                           HorizontalAlignment="Center">
+                <TextBlock Text="프로젝트 프리셋이 없습니다.">
                     <TextBlock.Style>
-                        <Style TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignBody2TextBlock}">
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource EmptyStateText}">
                             <Setter Property="Visibility" Value="Collapsed" />
-                            <Setter Property="Text" Value="프로젝트 프리셋이 없습니다." />
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding ProjectPresets.Count}" Value="0">
                                     <Setter Property="Visibility" Value="Visible" />
